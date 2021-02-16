@@ -1,9 +1,12 @@
 ﻿String
 * text.split()
    * Separates sentence into words array
+   * split(' ') = split around one space
 * range(a, b)
 * [::-1]
    * Reverse string
+* [:-1]
+   * Cut off last part of string
 * len(str)
 * s.isupper()
 * s.isnumeric()
@@ -16,6 +19,8 @@
 * s.endswith(str)
 * s.replace(a, b)
    * Replace all instances of a with b
+* s.capitalize()
+   * Capitalise first letter of word
 
 
 
@@ -24,7 +29,8 @@ Arrays
 * a.index(element)
 * a.append(element)
 
-
+Set
+* s.add(element)
 
 
 Datetime
@@ -32,4 +38,4 @@ Datetime
 
 Dictionaries
 * sorted(data, key=lambda x: x['price'], reverse=True)
-   * Sort based on key price in descending order
+   * Sort based on key 'price' in descending order
