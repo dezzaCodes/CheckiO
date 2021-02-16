@@ -1,0 +1,35 @@
+﻿String
+* text.split()
+   * Separates sentence into words array
+* range(a, b)
+* [::-1]
+   * Reverse string
+* len(str)
+* s.isupper()
+* s.isnumeric()
+* s.isspace()
+* max(iterable)
+* lower()
+* upper()
+* isalpha()
+* t.index(element)
+* s.endswith(str)
+* s.replace(a, b)
+   * Replace all instances of a with b
+
+
+
+
+Arrays
+* a.index(element)
+* a.append(element)
+
+
+
+
+Datetime
+* 
+
+Dictionaries
+* sorted(data, key=lambda x: x['price'], reverse=True)
+   * Sort based on key price in descending order
