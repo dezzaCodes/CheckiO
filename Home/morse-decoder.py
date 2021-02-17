@@ -37,3 +37,5 @@ if __name__ == '__main__':
 	assert morse_decoder("..--- ----- .---- ---..") == "2018"
 	assert morse_decoder(".. -   .-- .- ...   .-   --. --- --- -..   -.. .- -.--") == "It was a good day"
 	print("Coding complete? Click 'Check' to earn cool rewards!")
+
+# HARD
