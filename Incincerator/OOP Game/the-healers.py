@@ -1,12 +1,3 @@
-# Taken from mission The Lancers
-
-# Taken from mission The Vampires
-
-# Taken from mission The Defenders
-
-# Taken from mission Army Battles
-
-# Taken from mission The Warriors
 class Warrior:
 	def __init__(self):
 		self.health = 50
@@ -20,16 +11,15 @@ class Warrior:
 	def max_health(self):
 		return 50
 
-	def damage_taken(self, unit):
-		self.health -= unit.attack
-
+	def damage_taken(self, attack):
+		self.health -= attack
+		return attack
 
 	def damage_dealt(self, unit):
-		unit.damage_taken(self)
+		return unit.damage_taken(self.attack)
 
-
-	def lanced(self, lancer):
-		self.health -= 0.5 * lancer.attack
+	def lanced(self, attack):
+		self.health -= 0.5 * attack
 
 
 class Knight(Warrior):
@@ -44,17 +34,16 @@ class Defender(Warrior):
 		self.attack = 3
 		self.defense = 2
 
-
 	@property
 	def max_health(self):
 		return 60
 
-	def damage_taken(self, unit):
-		if unit.attack > self.defense:
-			self.health -= unit.attack - self.defense
+	def damage_taken(self, attack):
+		self.health -= max(0, attack - self.defense)
+		return max(0, attack - self.defense)
 
-	def lanced(self, unit):
-		self.health -= max(unit.attack * 0.5 - self.defense, 0)
+	def lanced(self, attack):
+		self.health -= max(0, attack * 0.5 - self.defense)
 
 
 class Vampire(Warrior):
@@ -64,21 +53,13 @@ class Vampire(Warrior):
 		self.attack = 4
 		self.vampirism = 50
 
-
 	@property
 	def max_health(self):
 		return 40
 
 	def damage_dealt(self, unit):
-		defense = 0
-		if isinstance(unit, Defender):
-			defense = unit.defense
-
-		if unit.health < self.attack:
-			self.health = min(40, self.health + (unit.health - defense) * self.vampirism / 100)
-		else:
-			self.health = min(40, self.health + (self.attack - defense) * self.vampirism / 100)
-		unit.damage_taken(self)
+		damage = super().damage_dealt(unit)
+		self.health = min(40, self.health + damage * self.vampirism // 100)
 
 
 class Lancer(Warrior):
@@ -112,44 +93,58 @@ class Army:
 		for i in range(amount):
 			self.units.append(unit())
 
+	@property
+	def first_alive_unit(self):
+		for unit in self.units:
+			if unit.is_alive:
+				return unit
+
+	def next_unit(self, unit):
+		i = self.units.index(unit)
+		if i + 1 < len(self.units):
+			return self.units[i + 1]
+		return False
+
+	@property
+	def is_alive(self):
+		return self.first_alive_unit is not None
+
 
 class Battle:
 	def fight(self, army_1, army_2):
-		i = 0
-		j = 0
-		length1 = len(army_1.units)
-		length2 = len(army_2.units)
-		while i < length1 and j < length2:
-			if fight(army_1.units[i], army_2.units[j], army_1, army_2, i, j):
-				j += 1
-			else:
-				i += 1
+		while army_1.is_alive and army_2.is_alive:
+			unit_1 = army_1.first_alive_unit
+			unit_2 = army_2.first_alive_unit
+			fight(unit_1, unit_2, army_1, army_2)
 
-		return True if j == length2 else False
+		return army_1.is_alive
 
 
-def fight(unit_1, unit_2, army_1=None, army_2=None, i=None, j=None):
+def fight(unit_1, unit_2, army_1=None, army_2=None):
+	army_1_next_unit = None
+	army_2_next_unit = None
+
+	if army_1:
+		army_1_next_unit = army_1.next_unit(unit_1)
+	if army_2:
+		army_2_next_unit = army_2.next_unit(unit_2)
+
 	while True:
 		unit_1.damage_dealt(unit_2)
-		if army_1:
-			if len(army_2.units) > j + 1 and isinstance(army_1.units[i], Lancer):
-				army_2.units[j + 1].lanced(army_1.units[i])
-			if len(army_1.units) > i + 1 and isinstance(army_1.units[i + 1], Healer):
-				army_1.units[i + 1].heal(army_1.units[i])
-
+		if army_2_next_unit and isinstance(unit_1, Lancer):
+			army_2_next_unit.lanced(unit_1.attack)
+		if army_1_next_unit and isinstance(army_1_next_unit, Healer):
+			army_1_next_unit.heal(unit_1)
 		if not unit_2.is_alive:
 			return True
 
 		unit_2.damage_dealt(unit_1)
-		if army_2:
-			if len(army_1.units) > i + 1 and isinstance(army_2.units[j], Lancer):
-				army_1.units[i + 1].lanced(army_2.units[j])
-			if len(army_2.units) > j + 1 and isinstance(army_2.units[j + 1], Healer):
-				army_2.units[j + 1].heal(army_2.units[j])
-
+		if army_1_next_unit and isinstance(unit_2, Lancer):
+			army_1_next_unit.lanced(unit_2.attack)
+		if army_2_next_unit and isinstance(army_2_next_unit, Healer):
+			army_2_next_unit.heal(unit_2)
 		if not unit_1.is_alive:
 			return False
-
 
 if __name__ == '__main__':
 	# These "asserts" using only for self-checking and not necessary for auto-testing
